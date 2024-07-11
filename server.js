@@ -10,3 +10,8 @@ const app = express()
 
 // Démarrage de la database
 require('./utils/database')
+
+/*--------------------- Création des routes (User - Utilisateur) ---------------------*/
+
+// Création du endpoint /user pour l'ajout d'un utilisateur
+app.post('/user', DatabaseMiddleware.checkConnexion, UserController.addOneUser)
