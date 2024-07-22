@@ -11,6 +11,22 @@ var User = mongoose.model('User', UserSchema)
 
 User.createIndexes()
 
+module.exports.loginUser = async function (username, password, options, callback) {
+    module.exports.findOneUser(['username', 'email'], username, null, async (err, value) => {
+      if (err)
+        callback(err)
+      else {
+        if (bcrypt.compareSync(password, value.password)) {
+          var token = TokenUtils.createToken({ _id: value._id }, null)
+          callback(null, { ...value, token: token })
+        }
+        else {
+          callback({ msg: "La comparaison des mots de passe sont fausses", type_error: "no_comparaison" })
+        }
+      }
+    })
+}
+
 module.exports.addOneUser = async function (user, options, callback) {
 
     try {
@@ -111,3 +127,119 @@ module.exports.addManyUsers = async function (users, options, callback) {
         }
     }
 };
+
+module.exports.findOneUserById = function (user_id, options, callback) {
+
+    if (user_id && mongoose.isValidObjectId(user_id)) {
+        User.findById(user_id).then((value) => {
+            try {
+                if (value) {
+                    callback(null, value.toObject());
+                } else {
+                    callback({ msg: "Aucun utilisateur trouvé.", type_error: "no-found" });
+                }
+            }
+            catch (e) {
+                console.log(e)
+            }
+        }).catch((err) => {
+            callback({ msg: "Impossible de chercher l'élément.", type_error: "error-mongo" });
+        });
+    } else {
+        callback({ msg: "ObjectId non conforme.", type_error: 'no-valid' });
+    }
+}
+
+module.exports.findManyUsersById = function (users_id, options, callback) {
+    
+    if (users_id && Array.isArray(users_id) && users_id.length > 0 && users_id.filter((e) => { return mongoose.isValidObjectId(e) }).length == users_id.length) {
+        users_id = users_id.map((e) => { return new ObjectId(e) })
+        User.find({ _id: users_id }).then((value) => {
+            try {
+                if (value && Array.isArray(value) && value.length != 0) {
+                    callback(null, value);
+                } else {
+                    callback({ msg: "Aucun utilisateur trouvé.", type_error: "no-found" });
+                }
+            }
+            catch (e) {
+                
+            }
+        }).catch((err) => {
+            callback({ msg: "Impossible de chercher l'élément.", type_error: "error-mongo" });
+        });
+    }
+    else if (users_id && Array.isArray(users_id) && users_id.length > 0 && users_id.filter((e) => { return mongoose.isValidObjectId(e) }).length != users_id.length) {
+        callback({ msg: "Tableau non conforme plusieurs éléments ne sont pas des ObjectId.", type_error: 'no-valid', fields: users_id.filter((e) => { return !mongoose.isValidObjectId(e) }) });
+    }
+    else if (users_id && !Array.isArray(users_id)) {
+        callback({ msg: "L'argument n'est pas un tableau.", type_error: 'no-valid' });
+    }
+    else {
+        callback({ msg: "Tableau non conforme.", type_error: 'no-valid' });
+    }
+}
+
+module.exports.findOneUser = function (tab_field, value, options, callback) {
+    var field_unique = ['username', 'email']
+    
+    if (tab_field && Array.isArray(tab_field) && value && _.filter(tab_field, (e) => { return field_unique.indexOf(e) == -1}).length == 0) {
+        var obj_find = []
+        _.forEach(tab_field, (e) => {
+            obj_find.push({[e]: value})
+        })
+        User.findOne({ $or: obj_find}).then((value) => {
+            if (value)
+                callback(null, value.toObject())
+            else {
+                callback({msg: "Utilisateur non trouvé.", type_error: "no-found"})
+            }
+        }).catch((err) => {
+            callback({msg: "Error interne mongo", type_error:'error-mongo'})
+        })
+    }
+    else {
+        let msg = ''
+        if(!tab_field || !Array.isArray(tab_field)) {
+            msg += "Les champs de recherche sont incorrecte."
+        }
+        if(!value){
+            msg += msg ? " Et la valeur de recherche est vide" : "La valeur de recherche est vide"
+        }
+        if(_.filter(tab_field, (e) => { return field_unique.indexOf(e) == -1}).length > 0) {
+            var field_not_authorized = _.filter(tab_field, (e) => { return field_unique.indexOf(e) == -1})
+            msg += msg ? ` Et (${field_not_authorized.join(',')}) ne sont pas des champs de recherche autorisé.` : 
+            `Les champs (${field_not_authorized.join(',')}) ne sont pas des champs de recherche autorisé.`
+            callback({ msg: msg, type_error: 'no-valid', field_not_authorized: field_not_authorized })
+        }
+        else{
+            callback({ msg: msg, type_error: 'no-valid'})
+        }
+    }
+}
+
+module.exports.findManyUsers = function(search, limit, page, options, callback) {
+    page = !page ? 1 : parseInt(page)
+    limit = !limit ? 10 : parseInt(limit)
+
+    if (typeof page !== "number" || typeof limit !== "number" || isNaN(page) || isNaN(limit)) {
+        callback ({msg: `format de ${typeof page !== "number" ? "page" : "limit"} est incorrect`, type_error: "no-valid"})
+    }else{
+        let query_mongo = search ? {$or: _.map(["firstName", "lastName", "username", "phone", "email"], (e) => {return {[e]: {$regex: search}}})} : {}
+        User.countDocuments(query_mongo).then((value) => {
+            if (value > 0) {
+                const skip = ((page - 1) * limit)
+                User.find(query_mongo, null, {skip:skip, limit:limit}).then((results) => {
+                    callback(null, {
+                        count: value,
+                        results: results
+                    })
+                })
+            }else{
+                callback(null, {count: 0, results: []})
+            }
+        }).catch((e) => {
+            callback(e)
+        })
+    }
+}

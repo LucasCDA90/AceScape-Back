@@ -46,4 +46,16 @@ app.post('/user', DatabaseMiddleware.checkConnexion, UserController.addOneUser)
 // Création du endpoint /users pour l'ajout de plusieurs utilisateurs
 app.post('/users', DatabaseMiddleware.checkConnexion, UserController.addManyUsers)
 
+// Création du endpoint /user pour la récupération d'un utilisateur par le champ selectionné
+app.get('/user', DatabaseMiddleware.checkConnexion, passport.authenticate('jwt', { session: false }), UserController.findOneUser)
+
+// Création du endpoint /user pour la récupération d'un utilisateur via l'id
+app.get('/user/:id', DatabaseMiddleware.checkConnexion, passport.authenticate('jwt', { session: false }), UserController.findOneUserById)
+
+// Création du endpoint /user pour la récupération de plusieurs utilisateurs via l'idS
+app.get('/users', DatabaseMiddleware.checkConnexion, passport.authenticate('jwt', { session: false }), UserController.findManyUsersById)
+
+// Création du endpoint /users_by_filters pour la récupération de plusieurs utilisateurs
+app.get('/users_by_filters', DatabaseMiddleware.checkConnexion, passport.authenticate('jwt', { session: false }), UserController.findManyUsers)
+
 module.exports = app

@@ -89,3 +89,71 @@ describe("POST - /users", () => {
         });
     })
 })
+
+describe("POST - /login", () => {
+    it("Authentifier un utilisateur correct. - S", (done) => {
+        chai.request(server).post('/login').send({username: 'dwarfSlayer', password: '1234'})
+        .end((err, res) => {
+            res.should.have.status(200)
+            valid_token = res.body.token
+            done()
+        })
+    })
+    it("Authentifier un utilisateur incorrect. (username inexistant) - E", (done) => {
+        chai.request(server).post('/login').send({username: 'zdesfrgtyhj', password: '1234'})
+        .end((err, res) => {
+            res.should.have.status(401)
+            done()
+        })
+    })
+    it("Authentifier un utilisateur incorrect. (password incorrect) - E", (done) => {
+        chai.request(server).post('/login').send({username: 'dwarfSlayer', password: '7894'})
+        .end((err, res) => {
+            res.should.have.status(401)
+            done()
+        })
+    })
+})
+
+describe("GET - /users_by_filters", () => {
+    it("Chercher plusieurs utilisateurs. - S", (done) => {
+        chai.request(server).get('/users_by_filters').auth(valid_token, { type: 'bearer' }).query({page: 1, pageSize: 2})
+        .end((err, res) => {
+            res.should.have.status(200)
+            expect(res.body.results).to.be.an('array')
+            done()
+        })
+    })
+    it("Chercher plusieurs utilisateurs avec une query vide - S", (done) => {
+        chai.request(server).get('/users_by_filters').auth(valid_token, { type: 'bearer' })
+        .end((err, res) => {
+            res.should.have.status(200)
+            expect(res.body.results).to.be.an('array')
+            expect(res.body.count).to.be.equal(7)
+            done()
+        })
+    })
+    it("Chercher plusieurs utilisateurs avec une query contenant une chaine de caractère - S", (done) => {
+        chai.request(server).get('/users_by_filters').auth(valid_token, { type: 'bearer' }).query({page: 1, pageSize: 2, q: 'lu'})
+        .end((err, res) => {
+            res.should.have.status(200)
+            expect(res.body.results).to.be.an('array')
+            expect(res.body.count).to.be.equal(5)
+            done()
+        })
+    })
+    it("Chercher plusieurs utilisateurs avec une chaine de caractères dans page - E", (done) => {
+        chai.request(server).get('/users_by_filters').auth(valid_token, { type: 'bearer' }).query({page: 'une phrase', pageSize: 2})
+        .end((err, res) => {
+            res.should.have.status(405)
+            done()
+        })
+    })
+    it("Chercher plusieurs utilisateurs sans etre authentifié. - E", (done) => {
+        chai.request(server).get('/users_by_filters').query({page: 1, pageSize: 2})
+        .end((err, res) => {
+            res.should.have.status(401)
+            done()
+        })
+    })
+})
