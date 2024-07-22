@@ -16,5 +16,9 @@ require('./utils/database')
 // Création du endpoint /user pour l'ajout d'un utilisateur
 app.post('/user', DatabaseMiddleware.checkConnexion, UserController.addOneUser)
 
+// 2e chose à faire : Créer le server avec app.listen
+app.listen(Config.port, () => {   
+    Logger.info(`Serveur démarré sur le port ${Config.port}.`)
+})
 
-app.listen(3000)
+module.exports = app
