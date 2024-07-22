@@ -390,7 +390,7 @@ describe("PUT - /users", () => {
 
 describe("DELETE - /user", () => {
     it("Supprimer un utilisateur. - S", (done) => {
-        chai.request(server).delete('/user/' + users[1]._id).auth(valid_token, { type: 'bearer' })
+        chai.request(server).delete('/user/' + users[2]._id).auth(valid_token, { type: 'bearer' })
         .end((err, res) => {
             res.should.have.status(200)
             done()
