@@ -77,7 +77,7 @@ describe("POST - /users", () => {
         {
             firstName: "Lutfu",
             lastName: "Us",
-            username: "dwarfSlayer",
+            username: "lutfu.us",
             email: "lutfu.us@gmail.com",
             password: "1234"
         }]
@@ -92,7 +92,7 @@ describe("POST - /users", () => {
 
 describe("POST - /login", () => {
     it("Authentifier un utilisateur correct. - S", (done) => {
-        chai.request(server).post('/login').send({username: 'dwarfSlayer', password: '1234'})
+        chai.request(server).post('/login').send({username: 'sylviefitsch1', password: '1234'})
         .end((err, res) => {
             res.should.have.status(200)
             valid_token = res.body.token
@@ -107,7 +107,7 @@ describe("POST - /login", () => {
         })
     })
     it("Authentifier un utilisateur incorrect. (password incorrect) - E", (done) => {
-        chai.request(server).post('/login').send({username: 'dwarfSlayer', password: '7894'})
+        chai.request(server).post('/login').send({username: 'sylviefitsch1', password: '7894'})
         .end((err, res) => {
             res.should.have.status(401)
             done()

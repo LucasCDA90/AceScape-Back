@@ -208,8 +208,11 @@ module.exports.findOneUser = function (tab_field, value, options, callback) {
         }
         if(_.filter(tab_field, (e) => { return field_unique.indexOf(e) == -1}).length > 0) {
             var field_not_authorized = _.filter(tab_field, (e) => { return field_unique.indexOf(e) == -1})
-            msg += msg ? ` Et (${field_not_authorized.join(',')}) ne sont pas des champs de recherche autorisé.` : 
+            msg += msg 
+            ? ` Et (${field_not_authorized.join(',')}) ne sont pas des champs de recherche autorisé.` 
+            : 
             `Les champs (${field_not_authorized.join(',')}) ne sont pas des champs de recherche autorisé.`
+
             callback({ msg: msg, type_error: 'no-valid', field_not_authorized: field_not_authorized })
         }
         else{

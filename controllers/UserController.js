@@ -58,7 +58,7 @@ module.exports.addManyUsers = function(req, res) {
     })
 }
 
-// La fonction permet de chercher un utilisateur
+// La fonction permet de chercher un utilisateur avec son id
 module.exports.findOneUserById = function(req, res) {
     req.log.info("Recherche d'un utilisateur par son id")
     UserService.findOneUserById(req.params.id, null, function(err, value) {        
@@ -81,7 +81,7 @@ module.exports.findOneUserById = function(req, res) {
     })
 }
 
-// La fonction permet de chercher un utilisateur par les champs autorisé
+// La fonction permet de chercher un utilisateur par les champs autorisés
 module.exports.findOneUser = function(req, res){
     LoggerHttp(req, res)
     req.log.info("Recherche d'un utilisateur par un champ autorisé")
@@ -108,7 +108,7 @@ module.exports.findOneUser = function(req, res){
     })
 }
 
-// La fonction permet de chercher plusieurs utilisateurs
+// La fonction permet de chercher plusieurs utilisateurs avec leur id
 module.exports.findManyUsersById = function(req, res) {
     LoggerHttp(req, res)
     req.log.info("Recherche de plusieurs utilisateurs", req.query.id)
