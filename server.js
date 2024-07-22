@@ -64,4 +64,10 @@ app.put('/user/:id', DatabaseMiddleware.checkConnexion, passport.authenticate('j
 // Création du endpoint /user pour la modification de plusieurs utilisateurs
 app.put('/users', DatabaseMiddleware.checkConnexion, passport.authenticate('jwt', { session: false }), UserController.updateManyUsers)
 
+// Création du endpoint /user pour la suppression d'un utilisateur
+app.delete('/user/:id', DatabaseMiddleware.checkConnexion, passport.authenticate('jwt', { session: false }), UserController.deleteOneUser)
+
+// Création du endpoint /user pour la suppression de plusieurs utilisateurs
+app.delete('/users', DatabaseMiddleware.checkConnexion, passport.authenticate('jwt', { session: false }), UserController.deleteManyUsers)
+
 module.exports = app

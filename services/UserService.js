@@ -348,3 +348,46 @@ module.exports.updateManyUsers = async function (users_id, update, options, call
         callback({ msg: "Id invalide.", type_error: 'no-valid' })
     }
 }
+
+module.exports.deleteOneUser = function (user_id, options, callback) {
+    if (user_id && mongoose.isValidObjectId(user_id)) {
+        User.findByIdAndDelete(user_id).then((value) => {
+            try {
+                if (value)
+                    callback(null, value.toObject())
+                else
+                    callback({ msg: "Utilisateur non trouvé.", type_error: "no-found" });
+            }
+            catch (e) {
+                
+                callback(e)
+            }
+        }).catch((e) => {
+            callback({ msg: "Impossible de chercher l'élément.", type_error: "error-mongo" });
+        })
+    }
+    else {
+        callback({ msg: "Id invalide.", type_error: 'no-valid' })
+    }
+}
+
+module.exports.deleteManyUsers = function (users_id, options, callback) {
+    
+    if (users_id && Array.isArray(users_id) && users_id.length > 0 && users_id.filter((e) => { return mongoose.isValidObjectId(e) }).length == users_id.length) {
+        users_id = users_id.map((e) => { return new ObjectId(e) })
+        User.deleteMany({ _id: users_id }).then((value) => {
+            callback(null, value)
+        }).catch((err) => {
+            callback({ msg: "Erreur mongo suppression.", type_error: "error-mongo" });
+        })
+    }
+    else if (users_id && Array.isArray(users_id) && users_id.length > 0 && users_id.filter((e) => { return mongoose.isValidObjectId(e) }).length != users_id.length) {
+        callback({ msg: "Tableau non conforme plusieurs éléments ne sont pas des ObjectId.", type_error: 'no-valid', fields: users_id.filter((e) => { return !mongoose.isValidObjectId(e) }) });
+    }
+    else if (users_id && !Array.isArray(users_id)) {
+        callback({ msg: "L'argement n'est pas un tableau.", type_error: 'no-valid' });
+    }
+    else {
+        callback({ msg: "Tableau non conforme.", type_error: 'no-valid' });
+    }
+}

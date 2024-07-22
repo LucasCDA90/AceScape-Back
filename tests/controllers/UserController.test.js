@@ -107,8 +107,136 @@ describe("POST - /login", () => {
             done()
         })
     })
-    it("Authentifier un utilisateur incorrect. (password incorrect) - E", (done) => {
+    it("entifier un utilisateur incorrect. (password incorrect) - E", (done) => {
         chai.request(server).post('/login').send({username: 'sylviefitsch1', password: '7894'})
+        .end((err, res) => {
+            res.should.have.status(401)
+            done()
+        })
+    })
+})
+
+describe("GET - /user/:id", () => {
+    it("Chercher un utilisateur correct. - S", (done) => {
+        chai.request(server).get('/user/' + users[0]._id).auth(valid_token, { type: 'bearer' })
+        .end((err, res) => {
+            res.should.have.status(200)
+            done()
+        })
+    })
+
+    it("Chercher un utilisateur incorrect (avec un id inexistant). - E", (done) => {
+        chai.request(server).get('/user/665f18739d3e172be5daf092').auth(valid_token, { type: 'bearer' })
+        .end((err, res) => {
+            res.should.have.status(404)
+            done()
+        })
+    })
+
+    it("Chercher un utilisateur incorrect (avec un id invalide). - E", (done) => {
+        chai.request(server).get('/user/123').auth(valid_token, { type: 'bearer' })
+        .end((err, res) => {
+            res.should.have.status(405)
+            done()
+        })
+    })
+
+    it("Chercher un utilisateur sans etre authentifié. - E", (done) => {
+        chai.request(server).get('/user/' + users[0]._id)
+        .end((err, res) => {
+            res.should.have.status(401)
+            done()
+        })
+    })
+    
+})
+
+describe("GET - /user", () => {
+    it("Chercher un utilisateur par un champ selectionné. - S", (done) => {
+        chai.request(server).get('/user').auth(valid_token, { type: 'bearer' }).query({fields: ['username'], value: users[0].username})
+        .end((err, res) => {
+            res.should.have.status(200)
+            done()
+        })
+    })
+
+    it("Chercher un utilisateur avec un champ non autorisé. - E", (done) => {
+        chai.request(server).get('/user').auth(valid_token, { type: 'bearer' }).query({fields: ['firstName'], value: users[0].firstName})
+        .end((err, res) => {
+            res.should.have.status(405)
+            done()
+        })
+    })
+
+    it("Chercher un utilisateur sans tableau de champ. - E", (done) => {
+        chai.request(server).get('/user').auth(valid_token, { type: 'bearer' }).query({value: users[0].firstName})
+        .end((err, res) => {
+            res.should.have.status(405)
+            done()
+        })
+    })
+
+    it("Chercher un utilisateur avec un champ vide. - E", (done) => {
+        chai.request(server).get('/user').auth(valid_token, { type: 'bearer' }).query({fields: ['username'], value: ''})
+        .end((err, res) => {
+            res.should.have.status(405)
+            done()
+        })
+    })
+
+    it("Chercher un utilisateur sans aucunes querys. - E", (done) => {
+        chai.request(server).get('/user').auth(valid_token, { type: 'bearer' })
+        .end((err, res) => {
+            res.should.have.status(405)
+            done()
+        })
+    })
+
+    it("Chercher un utilisateur inexistant. - E", (done) => {
+        chai.request(server).get('/user').auth(valid_token, { type: 'bearer' }).query({fields: ['username'], value: 'users[0].firstName'})
+        .end((err, res) => {
+            res.should.have.status(404)
+            done()
+        })
+    })
+
+    it("Chercher un utilisateur par un champ selectionné sans etre authentifié. - E", (done) => {
+        chai.request(server).get('/user').query({fields: ['username'], value: users[0].username})
+        .end((err, res) => {
+            res.should.have.status(401)
+            done()
+        })
+    })
+})
+
+describe("GET - /users", () => {
+    it("Chercher plusieurs utilisateurs. - S", (done) => {
+        chai.request(server).get('/users').auth(valid_token, { type: 'bearer' }).query({id: _.map(users, '_id')})
+        .end((err, res) => {
+            res.should.have.status(200)
+            expect(res.body).to.be.an('array')
+            done()
+        })
+    })
+
+    it("Chercher plusieurs utilisateurs incorrects (avec un id inexistant). - E", (done) => {
+        chai.request(server).get('/users').auth(valid_token, { type: 'bearer' }).query({id: ["66791a552b38d88d8c6e9ee7", "66791a822b38d88d8c6e9eed"]})
+        .end((err, res) => {
+            res.should.have.status(404)
+            done()
+        })
+    })
+
+    it("Chercher plusieurs utilisateurs incorrects (avec un id invalide). - E", (done) => {
+        chai.request(server).get('/users').auth(valid_token, { type: 'bearer' }).query({id: ['123', '456']})
+        .end((err, res) => {
+            res.should.have.status(405)
+            done()
+        })
+    })
+
+    it("Chercher plusieurs utilisateurs sans etre authentifié. - E", (done) => {
+        chai.request(server).get('/users').query({id: _.map(users, '_id')})
         .end((err, res) => {
             res.should.have.status(401)
             done()
@@ -130,7 +258,7 @@ describe("GET - /users_by_filters", () => {
         .end((err, res) => {
             res.should.have.status(200)
             expect(res.body.results).to.be.an('array')
-            expect(res.body.count).to.be.equal(7)
+            expect(res.body.count).to.be.equal(3)
             done()
         })
     })
@@ -139,7 +267,7 @@ describe("GET - /users_by_filters", () => {
         .end((err, res) => {
             res.should.have.status(200)
             expect(res.body.results).to.be.an('array')
-            expect(res.body.count).to.be.equal(5)
+            expect(res.body.count).to.be.equal(1)
             done()
         })
     })
@@ -258,4 +386,70 @@ describe("PUT - /users", () => {
             done()
         })
     })
+})
+
+describe("DELETE - /user", () => {
+    it("Supprimer un utilisateur. - S", (done) => {
+        chai.request(server).delete('/user/' + users[1]._id).auth(valid_token, { type: 'bearer' })
+        .end((err, res) => {
+            res.should.have.status(200)
+            done()
+        })
+    })
+    it("Supprimer un utilisateur incorrect (avec un id inexistant). - E", (done) => {
+        chai.request(server).delete('/user/665f18739d3e172be5daf092').auth(valid_token, { type: 'bearer' })
+        .end((err, res) => {
+            res.should.have.status(404)
+            done()
+        })
+    })
+    it("Supprimer un utilisateur incorrect (avec un id invalide). - E", (done) => {
+        chai.request(server).delete('/user/123').auth(valid_token, { type: 'bearer' })
+        .end((err, res) => {
+            res.should.have.status(405)
+            done()
+        })
+    })
+
+    it("Supprimer un utilisateur sans etre authentifié. - E", (done) => {
+        chai.request(server).delete('/user/' + users[1]._id)
+        .end((err, res) => {
+            res.should.have.status(401)
+            done()
+        })
+    })
+})
+
+describe("DELETE - /users", () => {
+    it("Supprimer plusieurs utilisateurs incorrects (avec un id inexistant). - E", (done) => {
+        chai.request(server).delete('/users/665f18739d3e172be5daf092&665f18739d3e172be5daf093').auth(valid_token, { type: 'bearer' })
+        .end((err, res) => {
+            res.should.have.status(404)
+            done()
+        })
+    })
+
+    it("Supprimer plusieurs utilisateurs incorrects (avec un id invalide). - E", (done) => {
+        chai.request(server).delete('/users').auth(valid_token, { type: 'bearer' }).query({id: ['123', '456']})
+        .end((err, res) => {
+            res.should.have.status(405)
+            done()
+        })
+    })
+
+    it("Supprimer plusieurs utilisateurs sans etre authentifié. - E", (done) => {
+        chai.request(server).delete('/users').query({id: _.map(users, '_id')})
+        .end((err, res) => {
+            res.should.have.status(401)
+            done()
+        })
+    })
+
+    it("Supprimer plusieurs utilisateurs. - S", (done) => {
+        chai.request(server).delete('/users').auth(valid_token, { type: 'bearer' }).query({id: _.map(users, '_id')})
+        .end((err, res) => {
+            res.should.have.status(200)
+            done()
+        })
+    }) 
 })

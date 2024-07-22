@@ -256,3 +256,55 @@ describe("updateManyUsers", () => {
         })
     })
 })
+
+describe("deleteOneUser", () => {
+    it("Supprimer un utilisateur correct. - S", (done) => {
+        UserService.deleteOneUser(id_user_valid, null, function (err, value) { //callback
+            expect(value).to.be.a('object')
+            expect(value).to.haveOwnProperty('_id')
+            expect(value).to.haveOwnProperty('firstName')
+            expect(value).to.haveOwnProperty('lastName')
+            done()
+
+        })
+    })
+    it("Supprimer un utilisateur avec id incorrect. - E", (done) => {
+        UserService.deleteOneUser("1200", null, function (err, value) {
+            expect(err).to.be.a('object')
+            expect(err).to.haveOwnProperty('msg')
+            expect(err).to.haveOwnProperty('type_error')
+            expect(err['type_error']).to.be.equal('no-valid')
+            done()
+        })
+    })
+    it("Supprimer un utilisateur avec un id inexistant. - E", (done) => {
+        UserService.deleteOneUser("665f00c6f64f76ba59361e9f", null, function (err, value) {
+            expect(err).to.be.a('object')
+            expect(err).to.haveOwnProperty('msg')
+            expect(err).to.haveOwnProperty('type_error')
+            expect(err['type_error']).to.be.equal('no-found')
+            done()
+        })
+    })
+})
+
+describe("deleteManyUsers", () => {
+    it("Supprimer plusieurs utilisateurs correctement. - S", (done) => {
+        UserService.deleteManyUsers(tab_id_users, null, function (err, value) {
+            expect(value).to.be.a('object')
+            expect(value).to.haveOwnProperty('deletedCount')
+            expect(value['deletedCount']).is.equal(tab_id_users.length)
+            done()
+
+        })
+    })
+    it("Supprimer plusieurs utilisateurs avec id incorrect. - E", (done) => {
+        UserService.deleteManyUsers("1200", null, function (err, value) {
+            expect(err).to.be.a('object')
+            expect(err).to.haveOwnProperty('msg')
+            expect(err).to.haveOwnProperty('type_error')
+            expect(err['type_error']).to.be.equal('no-valid')
+            done()
+        })
+    })
+})
