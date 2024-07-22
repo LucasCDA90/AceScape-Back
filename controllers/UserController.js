@@ -156,3 +156,27 @@ module.exports.findManyUsers = function(req, res) {
         }
     })
 }
+
+// La fonction permet de modifier un utilisateur
+module.exports.updateOneUser = function(req, res) {
+    LoggerHttp(req, res)
+    req.log.info("Modification d'un utilisateur")
+    UserService.updateOneUser(req.params.id, req.body, null, function(err, value) {
+        //
+        if (err && err.type_error == "no-found") {
+            res.statusCode = 404
+            res.send(err)
+        }
+        else if (err && (err.type_error == "no-valid" || err.type_error == "validator" || err.type_error == "duplicate" ) ) {
+            res.statusCode = 405
+            res.send(err)
+        }
+        else if (err && err.type_error == "error-mongo") {
+            res.statusCode = 500
+        }
+        else {
+            res.statusCode = 200
+            res.send(value)
+        }
+    })
+}

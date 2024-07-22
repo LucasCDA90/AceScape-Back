@@ -158,3 +158,53 @@ describe("GET - /users_by_filters", () => {
         })
     })
 })
+
+describe("PUT - /user", () => {
+    it("Modifier un utilisateur. - S", (done) => {
+        chai.request(server).put('/user/' + users[0]._id).auth(valid_token, { type: 'bearer' }).send({ firstName: "Olivier" })
+        .end((err, res) => {
+            res.should.have.status(200)
+            done()
+        })
+    })
+
+    it("Modifier un utilisateur avec un id invalide. - E", (done) => {
+        chai.request(server).put('/user/123456789').auth(valid_token, { type: 'bearer' }).send({firstName: "Olivier", lastName: "Edouard"})
+        .end((err, res) => {
+            res.should.have.status(405)
+            done()
+        })
+    })
+
+    it("Modifier un utilisateur avec un id inexistant. - E", (done) => {
+        chai.request(server).put('/user/66791a552b38d88d8c6e9ee7').auth(valid_token, { type: 'bearer' }).send({firstName: "Olivier", lastName: "Edouard"})
+        .end((err, res) => {
+            res.should.have.status(404)
+            done()
+        })
+    })
+
+    it("Modifier un utilisateur avec un champ requis vide. - E", (done) => {
+        chai.request(server).put('/user/' + users[0]._id).auth(valid_token, { type: 'bearer' }).send({ firstName: "", lastName: "Edouard" })
+        .end((err, res) => {
+            res.should.have.status(405)
+            done()
+        })
+    })
+
+    it("Modifier un utilisateur avec un champ unique existant. - E", (done) => {
+        chai.request(server).put('/user/' + users[0]._id).auth(valid_token, { type: 'bearer' }).send({ username: users[1].username})
+        .end((err, res) => {
+            res.should.have.status(405)
+            done()
+        })
+    })
+
+    it("Modifier un utilisateur sans etre authentifié. - E", (done) => {
+        chai.request(server).put('/user/' + users[0]._id).send({ firstName: "Olivier" })
+        .end((err, res) => {
+            res.should.have.status(401)
+            done()
+        })
+    })
+})

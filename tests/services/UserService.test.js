@@ -189,3 +189,37 @@ describe("findManyUsersById", () => {
         })
     })
 })
+
+describe("updateOneUser", () => {
+    it("Modifier un utilisateur correct. - S", (done) => {
+        UserService.updateOneUser(id_user_valid, { firstName: "Jean", lastName: "Luc" }, null, function (err, value) {
+            expect(value).to.be.a('object')
+            expect(value).to.haveOwnProperty('_id')
+            expect(value).to.haveOwnProperty('firstName')
+            expect(value).to.haveOwnProperty('lastName')
+            expect(value['firstName']).to.be.equal('Jean')
+            expect(value['lastName']).to.be.equal('Luc')
+            done()
+        })
+    })
+    it("Modifier un utilisateur avec id incorrect. - E", (done) => {
+        UserService.updateOneUser("1200", { firstName: "Jean", lastName: "Luc" }, null, function (err, value) {
+            expect(err).to.be.a('object')
+            expect(err).to.haveOwnProperty('msg')
+            expect(err).to.haveOwnProperty('type_error')
+            expect(err['type_error']).to.be.equal('no-valid')
+            done()
+        })
+    })
+    it("Modifier un utilisateur avec des champs requis vide. - E", (done) => {
+        UserService.updateOneUser(id_user_valid, { firstName: "", lastName: "Luc" }, null, function (err, value) {
+            expect(value).to.be.undefined
+            expect(err).to.haveOwnProperty('msg')
+            expect(err).to.haveOwnProperty('fields_with_error').with.lengthOf(1)
+            expect(err).to.haveOwnProperty('fields')
+            expect(err['fields']).to.haveOwnProperty('firstName')
+            expect(err['fields']['firstName']).to.equal('Path `firstName` is required.')
+            done()
+        })
+    })
+})

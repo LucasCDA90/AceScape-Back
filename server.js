@@ -58,4 +58,9 @@ app.get('/users', DatabaseMiddleware.checkConnexion, passport.authenticate('jwt'
 // Création du endpoint /users_by_filters pour la récupération de plusieurs utilisateurs
 app.get('/users_by_filters', DatabaseMiddleware.checkConnexion, passport.authenticate('jwt', { session: false }), UserController.findManyUsers)
 
+// Création du endpoint /user pour la modification d'un utilisateur
+app.put('/user/:id', DatabaseMiddleware.checkConnexion, passport.authenticate('jwt', { session: false }), UserController.updateOneUser)
+
+
+
 module.exports = app
