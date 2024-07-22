@@ -1,15 +1,23 @@
 const UserSchema = require('../schemas/User')
-const _ = require ('lodash')
+const _ = require('lodash')
 const async = require('async')
-const mongoose = require ('mongoose')
+const mongoose = require('mongoose')
 const ObjectId = mongoose.Types.ObjectId
+const bcrypt = require('bcrypt')
+const TokenUtils = require('./../utils/token')
+const SALT_WORK_FACTOR = 10
 
-var User = mongoose.Model('User', UserSchema)
+var User = mongoose.model('User', UserSchema)
 
 User.createIndexes()
 
-module.exports.addOneUser = async function (user, callback) {
+module.exports.addOneUser = async function (user, options, callback) {
+
     try {
+        const salt = await bcrypt.genSalt(SALT_WORK_FACTOR)
+        if(user && user.password){
+            user.password = await bcrypt.hash(user.password, salt)
+        }
         var new_user = new User(user);
         var errors = new_user.validateSync();
         if (errors) {

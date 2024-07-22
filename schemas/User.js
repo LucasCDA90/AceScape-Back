@@ -39,11 +39,17 @@ var UserSchema = mongoose.Schema({
         type: String,
         required: false
     },
-    typeAccount:
+    isAdmin:
+    {
+        type: Boolean,
+        required: false
+    },
+    password: 
     {
         type: String,
         required: true
     },
+    token: String
 
 })
 
