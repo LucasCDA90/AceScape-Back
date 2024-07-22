@@ -61,6 +61,7 @@ app.get('/users_by_filters', DatabaseMiddleware.checkConnexion, passport.authent
 // Création du endpoint /user pour la modification d'un utilisateur
 app.put('/user/:id', DatabaseMiddleware.checkConnexion, passport.authenticate('jwt', { session: false }), UserController.updateOneUser)
 
-
+// Création du endpoint /user pour la modification de plusieurs utilisateurs
+app.put('/users', DatabaseMiddleware.checkConnexion, passport.authenticate('jwt', { session: false }), UserController.updateManyUsers)
 
 module.exports = app

@@ -208,3 +208,54 @@ describe("PUT - /user", () => {
         })
     })
 })
+
+describe("PUT - /users", () => {
+    it("Modifier plusieurs utilisateurs. - S", (done) => {
+        chai.request(server).put('/users').auth(valid_token, { type: 'bearer' }).query({id: _.map(users, '_id')}).send({ firstName: "lucas" })
+        .end((err, res) => {
+            res.should.have.status(200)
+            done()
+        })
+    })
+
+    it("Modifier plusieurs utilisateurs avec des ids invalide. - E", (done) => {
+        chai.request(server).put('/users').auth(valid_token, { type: 'bearer' }).query({id: ['267428142', '41452828']}).send({firstName: "Olivier"})
+        .end((err, res) => {
+            res.should.have.status(405)
+            done()
+        })
+    })
+
+    it("Modifier plusieurs utilisateurs avec des ids inexistant. - E", (done) => {
+        chai.request(server).put('/users').auth(valid_token, { type: 'bearer' }).query({id: ['66791a552b38d88d8c6e9ee7', '667980886db560087464d3a7']})
+        .send({firstName: "Olivier"})
+        .end((err, res) => {
+            res.should.have.status(404)
+            done()
+        })
+    })
+
+    it("Modifier des utilisateurs avec un champ requis vide. - E", (done) => {
+        chai.request(server).put('/users').auth(valid_token, { type: 'bearer' }).query({id: _.map(users, '_id')}).send({ firstName: ""})
+        .end((err, res) => {
+            res.should.have.status(405)
+            done()
+        })
+    })
+
+    it("Modifier des utilisateurs avec un champ unique existant. - E", (done) => {
+        chai.request(server).put('/users').auth(valid_token, { type: 'bearer' }).query({id: _.map(users, '_id')}).send({ username: users[1].username})
+        .end((err, res) => {
+            res.should.have.status(405)
+            done()
+        })
+    })
+
+    it("Modifier plusieurs utilisateurs sans etre authentifié. - E", (done) => {
+        chai.request(server).put('/users').query({id: _.map(users, '_id')}).send({ firstName: "lucas" })
+        .end((err, res) => {
+            res.should.have.status(401)
+            done()
+        })
+    })
+})
