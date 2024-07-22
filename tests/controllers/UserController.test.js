@@ -79,6 +79,7 @@ describe("POST - /users", () => {
             lastName: "Us",
             username: "lutfu.us",
             email: "lutfu.us@gmail.com",
+            // isAdmin: true,
             password: "1234"
         }]
         ).end((err, res) => {
