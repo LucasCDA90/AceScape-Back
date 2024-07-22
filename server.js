@@ -15,3 +15,6 @@ require('./utils/database')
 
 // Création du endpoint /user pour l'ajout d'un utilisateur
 app.post('/user', DatabaseMiddleware.checkConnexion, UserController.addOneUser)
+
+
+app.listen(3000)
