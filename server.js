@@ -43,8 +43,7 @@ app.post('/login', DatabaseMiddleware.checkConnexion, UserController.loginUser)
 // Création du endpoint /user pour l'ajout d'un utilisateur
 app.post('/user', DatabaseMiddleware.checkConnexion, UserController.addOneUser)
 
-/* // Création du endpoint /user pour la suppression d'un utilisateur
-app.delete('/user/:id', DatabaseMiddleware.checkConnexion, passport.authenticate('jwt', { session: false }), UserController.deleteOneUser)
+// Création du endpoint /users pour l'ajout de plusieurs utilisateurs
+app.post('/users', DatabaseMiddleware.checkConnexion, UserController.addManyUsers)
 
- */
 module.exports = app

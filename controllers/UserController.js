@@ -43,3 +43,17 @@ module.exports.addOneUser = function(req, res) {
         }
     })
 }
+
+// La fonction permet d'ajouter plusieurs utilisateurs
+module.exports.addManyUsers = function(req, res) {
+    req.log.info("Création de plusieurs utilisateurs")
+    UserService.addManyUsers(req.body, null, function(err, value) {
+        if (err) {
+            res.statusCode = 405
+            res.send(err)
+        }else {
+            res.statusCode = 201
+            res.send(value)
+        }
+    })
+}

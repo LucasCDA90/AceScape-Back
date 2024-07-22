@@ -63,3 +63,29 @@ describe("POST - /user", () => {
         })
     })
 })
+
+describe("POST - /users", () => {
+    it("Ajouter plusieurs utilisateurs. - S", (done) => {
+        chai.request(server).post('/users').send([{
+            firstName: "Sylvie",
+            lastName: "Fitsch",
+            username: "sylviefitsch1",
+            email: "sylvie.fitsch1@gmail.com",
+            // isAdmin: true,
+            password: "1234"
+        },
+        {
+            firstName: "Lutfu",
+            lastName: "Us",
+            username: "dwarfSlayer",
+            email: "lutfu.us@gmail.com",
+            password: "1234"
+        }]
+        ).end((err, res) => {
+            res.should.have.status(201)
+
+            users = [...users, ...res.body]
+            done()
+        });
+    })
+})
