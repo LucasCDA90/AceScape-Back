@@ -10,10 +10,10 @@ describe("UserController", () => {
     require('./controllers/UserController.test')
 })
 
-describe("API - Mongo", () => {
+/* describe("API - Mongo", () => {
     it("Vider les dbs. -S", () => {
       if (process.env.npm_lifecycle_event == 'test') {
         mongoose.connection.db.dropDatabase()
       }
     })
-})
+}) */

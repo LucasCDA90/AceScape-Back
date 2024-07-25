@@ -21,7 +21,7 @@ module.exports.loginUser = async function (username, password, options, callback
           callback(null, { ...value, token: token })
         }
         else {
-          callback({ msg: "La comparaison des mots de passe sont fausses", type_error: "no_comparaison" })
+          callback({ msg: "La comparaison des mots de passe est fausse", type_error: "no_comparaison" })
         }
       }
     })

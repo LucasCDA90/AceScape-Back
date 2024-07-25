@@ -17,8 +17,10 @@ describe("addOneUser", () => {
             password: "1234"
         }
         UserService.addOneUser(user, null, function (err, value) {
-            expect(value).to.be.a('object');
-            expect(value).to.haveOwnProperty('_id');
+            expect(value).to.be.a('object')
+            expect(value).to.haveOwnProperty('_id')
+            expect(value).to.haveOwnProperty('username')
+            expect(value).to.haveOwnProperty('email')
             id_user_valid = value._id
             users.push(value)
             done()
@@ -39,6 +41,20 @@ describe("addOneUser", () => {
             expect(err['fields']).to.haveOwnProperty('firstName')
             expect(err['fields']['firstName']).to.equal('Path `firstName` is required.')
             done()
+        })
+    })
+    it("Utilisateur incorrect. (Username déja utilisé) - E", () => {
+        let user_no_valid = {
+            username: "lucasberger2",
+            email: "lucas.berger2@gmail.com",
+            password: "1234"
+        }
+        UserService.addOneUser(user_no_valid, null, function (err, value) {
+            expect(err).to.haveOwnProperty('msg')
+            expect(err).to.haveOwnProperty('fields_with_error').with.lengthOf(1)
+            expect(err).to.haveOwnProperty('field')
+            expect(err['field']).to.equal('username')
+            expect(err['msg']).to.equal('Path username value already exist.')
         })
     })
 })

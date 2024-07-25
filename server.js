@@ -11,6 +11,13 @@ const app = express()
 // Démarrage de la database
 require('./utils/database')
 
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    next();
+  });
+
 // Ajout du module de login
 const passport = require('./utils/passport')
 // passport init
@@ -36,6 +43,11 @@ const LoggerMiddleware = require('./middlewares/logger')
 
 // Déclaration des middlewares à express
 app.use(bodyParser.json(), LoggerMiddleware.addLogger)
+
+app.get('/test', function(req, res){
+    console.log('salut')
+    res.send('coucou')
+})
 
 /*--------------------- Création des routes (User - Utilisateur) ---------------------*/
 app.post('/login', DatabaseMiddleware.checkConnexion, UserController.loginUser)
@@ -71,3 +83,8 @@ app.delete('/user/:id', DatabaseMiddleware.checkConnexion, passport.authenticate
 app.delete('/users', DatabaseMiddleware.checkConnexion, passport.authenticate('jwt', { session: false }), UserController.deleteManyUsers)
 
 module.exports = app
+
+// 2e chose à faire : Créer le server avec app.listen
+app.listen(Config.port, () => {
+    Logger.info(`Serveur démarré sur le port ${Config.port}.`)
+  })

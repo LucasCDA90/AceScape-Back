@@ -28,17 +28,6 @@ var UserSchema = mongoose.Schema({
         index: true,
         unique: true
     },
-
-    phone: 
-    {
-        type: String,
-        required: false
-    },
-    status: 
-    {
-        type: String,
-        required: false
-    },
     isAdmin:
     {
         type: Boolean,
