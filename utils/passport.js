@@ -25,6 +25,7 @@ passport.use(new JWTStrategy({
         if(err){
             done(err)
         }else{
+            // verif token existant sinon erreur
             done(null, value)
         }
     })
