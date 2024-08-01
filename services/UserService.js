@@ -248,6 +248,8 @@ module.exports.findManyUsers = function(search, limit, page, options, callback) 
 }
 
 module.exports.updateOneUser = async function (user_id, update, options, callback) {
+    console.log(update)
+    console.log(user_id)
     if (user_id && mongoose.isValidObjectId(user_id)) {
         const salt = await bcryptjs.genSalt(SALT_WORK_FACTOR)
         if(update && update.password){

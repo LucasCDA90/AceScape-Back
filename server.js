@@ -12,11 +12,21 @@ const swaggerUi = require('swagger-ui-express'); // swagger
 // Création de notre application express.js
 const app = express()
 
-// Configuration Swagger
-const swaggerOptions = require('./swagger.json');
+// Configuration des options de Swagger
+const swaggerOptions = {
+  swaggerDefinition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'AceScape API',
+      version: '1.0.0',
+      description: 'Documentation de l\'API pour AceScape',
+    },
+  },
+  apis: ['./controllers/*.js'], // fichiers contenant les annotations Swagger
+};
+
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
-app.use('/api-docs', swaggerUi.serve,
-swaggerUi.setup(swaggerDocs));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Démarrage de la database
 require('./utils/database')
