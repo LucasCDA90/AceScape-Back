@@ -33,6 +33,12 @@ var UserSchema = mongoose.Schema({
         type: Boolean,
         required: false
     },
+    currency:
+    {
+        type: Number,
+        default: 1000,
+        required: true
+    },
     password: 
     {
         type: String,

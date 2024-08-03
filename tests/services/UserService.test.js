@@ -45,7 +45,9 @@ describe("addOneUser", () => {
     })
     it("Utilisateur incorrect. (Username déja utilisé) - E", () => {
         let user_no_valid = {
-            username: "lucasberger2",
+            firstName: "Lucas",
+            lastName: "Berger",
+            username: "lucasberger",
             email: "lucas.berger2@gmail.com",
             password: "1234"
         }
@@ -163,6 +165,7 @@ describe("findManyUsers", () => {
             expect(value["count"]).to.be.equal(4)
             expect(value["results"]).lengthOf(3)
             expect(err).to.be.null
+            console.log(value)
             done()
         })
     })
@@ -218,6 +221,23 @@ describe("updateOneUser", () => {
             done()
         })
     })
+    it("Modifier un utilisateur avec mise à jour de la monnaie. - S", (done) => {
+        UserService.updateOneUser(id_user_valid, { currency: 100 }, null, function (err, value) {
+            expect(err).to.be.null;
+            expect(value).to.be.an('object');
+            expect(value).to.have.property('currency').that.equals(100);
+            done();
+        });
+    });
+
+    it("Essayer de modifier la monnaie avec une valeur négative. - E", (done) => {
+        UserService.updateOneUser(id_user_valid, { currency: -50 }, null, function (err, value) {
+            expect(err).to.be.an('object');
+            expect(err).to.have.property('type_error', 'invalid_currency');
+            expect(value).to.be.undefined;
+            done();
+        });
+    });
     it("Modifier un utilisateur avec id incorrect. - E", (done) => {
         UserService.updateOneUser("1200", { firstName: "Jean", lastName: "Luc" }, null, function (err, value) {
             expect(err).to.be.a('object')

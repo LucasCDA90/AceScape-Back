@@ -296,6 +296,24 @@ describe("PUT - /user", () => {
         })
     })
 
+    it("Modifier un utilisateur avec mise à jour de la monnaie. - S", (done) => {
+        chai.request(server).put('/user/' + users[0]._id).auth(valid_token, { type: 'bearer' }).send({ currency: 100 })
+          .end((err, res) => {
+            res.should.have.status(200);
+            expect(res.body).to.have.property('currency', 100);
+            done();
+          });
+      });
+    
+      it("Essayer de modifier la monnaie avec une valeur négative. - E", (done) => {
+        chai.request(server).put('/user/' + users[0]._id).auth(valid_token, { type: 'bearer' }).send({ currency: -50 })
+          .end((err, res) => {
+            res.should.have.status(400);
+            expect(res.body).to.have.property('type_error', 'invalid_currency');
+            done();
+          });
+      });
+
     it("Modifier un utilisateur avec un id invalide. - E", (done) => {
         chai.request(server).put('/user/123456789').auth(valid_token, { type: 'bearer' }).send({firstName: "Olivier", lastName: "Edouard"})
         .end((err, res) => {
