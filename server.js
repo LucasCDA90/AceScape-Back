@@ -65,7 +65,12 @@ const LoggerMiddleware = require('./middlewares/logger');
 app.use(bodyParser.json(), LoggerMiddleware.addLogger);
 
 /*--------------------- Création des routes (User - Utilisateur) ---------------------*/
+
+//Création du endpoint /login pour connecter un utilisateur
 app.post('/login', DatabaseMiddleware.checkConnexion, UserController.loginUser);
+
+//Création du endpoint /logout pour deconnecter un utilisateur
+app.post('/logout', DatabaseMiddleware.checkConnexion, passport.authenticate('jwt', { session: false }), UserController.logoutUser)
 
 // Création du endpoint /user pour l'ajout d'un utilisateur
 app.post('/user', DatabaseMiddleware.checkConnexion, UserController.addOneUser);

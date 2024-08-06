@@ -165,7 +165,6 @@ describe("findManyUsers", () => {
             expect(value["count"]).to.be.equal(4)
             expect(value["results"]).lengthOf(3)
             expect(err).to.be.null
-            console.log(value)
             done()
         })
     })

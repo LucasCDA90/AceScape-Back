@@ -17,8 +17,10 @@ module.exports.loginUser = async function (username, password, options, callback
         callback(err)
       else {
         if (bcryptjs.compareSync(password, value.password)) {
-          var token = TokenUtils.createToken({ _id: value._id }, null) // 
-          callback(null, { ...value, token: token })
+          var token = TokenUtils.createToken({ _id: value._id }, null)
+          module.exports.updateOneUser(value._id, {token: token}, null, (err, val) => {
+            callback(null, { ...value, token: token })
+          })
         }
         else {
           callback({ msg: "La comparaison des mots de passe est fausse", type_error: "no_comparaison" })
@@ -28,11 +30,10 @@ module.exports.loginUser = async function (username, password, options, callback
 }
 
 module.exports.addOneUser = async function (user, options, callback) {
-
     try {
-        const salt = await bcryptjs.genSalt(SALT_WORK_FACTOR)
-        if(user && user.password){
-            user.password = await bcryptjs.hash(user.password, salt)
+        const salt = await bcryptjs.genSalt(SALT_WORK_FACTOR);
+        if (user && user.password) {
+            user.password = await bcryptjs.hash(user.password, salt);
         }
         var new_user = new User(user);
         var errors = new_user.validateSync();

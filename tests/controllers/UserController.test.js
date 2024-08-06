@@ -118,7 +118,7 @@ describe("POST - /login", () => {
 
 describe("GET - /user/:id", () => {
     it("Chercher un utilisateur correct. - S", (done) => {
-        chai.request(server).get('/user/' + users[0]._id).auth(valid_token, { type: 'bearer' })
+        chai.request(server).get('/user/' + users[1]._id).auth(valid_token, { type: 'bearer' })
         .end((err, res) => {
             res.should.have.status(200)
             done()

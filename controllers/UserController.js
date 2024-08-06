@@ -20,6 +20,24 @@ module.exports.loginUser = function (req, res, next) {
   })(req, res, next);
 };
 
+module.exports.logoutUser = function(req, res) {
+  req.log.info("Deconnexion d'un utilisateur");
+  UserService.updateOneUser(req.user._id, {token: ""}, null, function(err, value) {
+    if (err && err.type_error == 'no found') {
+      res.statusCode = 404;
+      res.send(err);
+    } else if (err && err.type_error == 'validator') {
+      res.statusCode = 405;
+      res.send(err);
+    } else if (err && err.type_error == 'duplicate') {
+      res.statusCode = 405;
+      res.send(err);
+    } else {
+      res.statusCode = 201;
+      res.send({msg: "L'utilisateur est deconnecté"});
+    }
+  })
+}
 
 module.exports.addOneUser = function (req, res) {
   LoggerHttp(req, res);

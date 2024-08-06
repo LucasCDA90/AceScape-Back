@@ -24,12 +24,21 @@ passport.use(new JWTStrategy({
 }, function(req, jwt_payload, done) {
     // déchiffrer le token et lire les informations dedans. (_id) => pour recherche l'utilisateur
     UserService.findOneUserById(jwt_payload._id, null, function(err, value){
-        if(err){
+        if(err) {
             done(err)
-        }else{
+        }
+            
+        
+        else if (value && value.token =="") {
+            done(null, false, {msg:"unauthorized", type_error:'no-valid'})
+        }
+        
+        else {
             // verif token existant sinon erreur
             done(null, value)
         }
+            
+        
     })
 }))
 
