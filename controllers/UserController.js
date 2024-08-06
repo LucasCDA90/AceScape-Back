@@ -1,8 +1,42 @@
 const UserService = require('../services/UserService');
-const LoggerHttp = require('../utils/logger').http;
 const passport = require('passport');
 
+/**
+ * @swagger
+ * tags:
+ *   name: User
+ *   description: User management and login
+ */
 
+/**
+ * @swagger
+ * /login:
+ *   post:
+ *     summary: Authentifie un utilisateur
+ *     tags: [User]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Authentification réussie
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Nom d'utilisateur ou mot de passe incorrect
+ *       500:
+ *         description: Erreur interne du serveur
+ */
 module.exports.loginUser = function (req, res, next) {
   passport.authenticate('login', { badRequestMessage: 'Les champs sont manquants.' }, async function (err, user) {
     if (err) {
@@ -20,6 +54,18 @@ module.exports.loginUser = function (req, res, next) {
   })(req, res, next);
 };
 
+/**
+ * @swagger
+ * /logout:
+ *   post:
+ *     summary: Déconnecte un utilisateur
+ *     tags: [User]
+ *     responses:
+ *       201:
+ *         description: Utilisateur déconnecté
+ *       404:
+ *         description: Utilisateur non trouvé
+ */
 module.exports.logoutUser = function(req, res) {
   req.log.info("Deconnexion d'un utilisateur");
   UserService.updateOneUser(req.user._id, {token: ""}, null, function(err, value) {
@@ -37,10 +83,56 @@ module.exports.logoutUser = function(req, res) {
       res.send({msg: "L'utilisateur est deconnecté"});
     }
   })
-}
+};
 
+/**
+ * @swagger
+ * /user:
+ *   post:
+ *     summary: Ajoute un utilisateur
+ *     tags: [User]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/User'
+ *     responses:
+ *       201:
+ *         description: Utilisateur créé
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       405:
+ *         description: Erreur de validation ou duplication
+ *   get:
+ *     summary: Recherche un utilisateur par champ
+ *     tags: [User]
+ *     parameters:
+ *       - in: query
+ *         name: fields
+ *         schema:
+ *           type: array
+ *           items:
+ *             type: string
+ *         description: Champs de recherche
+ *       - in: query
+ *         name: value
+ *         schema:
+ *           type: string
+ *         description: Valeur du champ
+ *     responses:
+ *       200:
+ *         description: Utilisateur trouvé
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       404:
+ *         description: Utilisateur non trouvé
+ */
 module.exports.addOneUser = function (req, res) {
-  LoggerHttp(req, res);
   req.log.info("Création d'un utilisateur");
   UserService.addOneUser(req.body, null, function (err, value) {
     if (err && err.type_error == 'no found') {
@@ -59,6 +151,55 @@ module.exports.addOneUser = function (req, res) {
   });
 };
 
+/**
+ * @swagger
+ * /users:
+ *   post:
+ *     summary: Ajoute plusieurs utilisateurs
+ *     tags: [User]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: array
+ *             items:
+ *               $ref: '#/components/schemas/User'
+ *     responses:
+ *       201:
+ *         description: Utilisateurs créés
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ *       405:
+ *         description: Erreur de validation
+ *   get:
+ *     summary: Recherche plusieurs utilisateurs par ID
+ *     tags: [User]
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: array
+ *           items:
+ *             type: string
+ *         description: Liste des IDs des utilisateurs
+ *     responses:
+ *       200:
+ *         description: Utilisateurs trouvés
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ *       404:
+ *         description: Utilisateur(s) non trouvé(s)
+ */
 module.exports.addManyUsers = function (req, res) {
   req.log.info('Création de plusieurs utilisateurs');
   UserService.addManyUsers(req.body, null, function (err, value) {
@@ -72,7 +213,29 @@ module.exports.addManyUsers = function (req, res) {
   });
 };
 
-
+/**
+ * @swagger
+ * /user/{id}:
+ *   get:
+ *     summary: Recherche un utilisateur par ID
+ *     tags: [User]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de l'utilisateur
+ *     responses:
+ *       200:
+ *         description: Utilisateur trouvé
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       404:
+ *         description: Utilisateur non trouvé
+ */
 module.exports.findOneUserById = function (req, res) {
   req.log.info("Recherche d'un utilisateur par son id");
   UserService.findOneUserById(req.params.id, null, function (err, value) {
@@ -92,8 +255,36 @@ module.exports.findOneUserById = function (req, res) {
   });
 };
 
+/**
+ * @swagger
+ * /user:
+ *   get:
+ *     summary: Recherche un utilisateur par champ
+ *     tags: [User]
+ *     parameters:
+ *       - in: query
+ *         name: fields
+ *         schema:
+ *           type: array
+ *           items:
+ *             type: string
+ *         description: Champs de recherche
+ *       - in: query
+ *         name: value
+ *         schema:
+ *           type: string
+ *         description: Valeur du champ
+ *     responses:
+ *       200:
+ *         description: Utilisateur trouvé
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       404:
+ *         description: Utilisateur non trouvé
+ */
 module.exports.findOneUser = function (req, res) {
-  LoggerHttp(req, res);
   req.log.info("Recherche d'un utilisateur par un champ autorisé");
   let fields = req.query.fields;
   if (fields && !Array.isArray(fields)) fields = [fields];
@@ -114,8 +305,34 @@ module.exports.findOneUser = function (req, res) {
   });
 };
 
+/**
+ * @swagger
+ * /users:
+ *   get:
+ *     summary: Recherche plusieurs utilisateurs par ID
+ *     tags: [User]
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: array
+ *           items:
+ *             type: string
+ *         description: Liste des IDs des utilisateurs
+ *     responses:
+ *       200:
+ *         description: Utilisateurs trouvés
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ *       404:
+ *         description: Utilisateur(s) non trouvé(s)
+ */
 module.exports.findManyUsersById = function (req, res) {
-  LoggerHttp(req, res);
   req.log.info('Recherche de plusieurs utilisateurs', req.query.id);
   var arg = req.query.id;
   if (arg && !Array.isArray(arg)) arg = [arg];
@@ -136,7 +353,38 @@ module.exports.findManyUsersById = function (req, res) {
   });
 };
 
-
+/**
+ * @swagger
+ * /users_by_filters:
+ *   get:
+ *     summary: Recherche de plusieurs utilisateurs par filtres
+ *     tags: [User]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Numéro de page
+ *       - in: query
+ *         name: pageSize
+ *         schema:
+ *           type: integer
+ *         description: Taille de la page
+ *       - in: query
+ *         name: q
+ *         schema:
+ *           type: string
+ *         description: Valeur de recherche
+ *     responses:
+ *       200:
+ *         description: Utilisateurs trouvés
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ */
 module.exports.findManyUsers = function (req, res) {
   req.log.info('Recherche de plusieurs utilisateurs');
   let page = req.query.page;
@@ -156,8 +404,38 @@ module.exports.findManyUsers = function (req, res) {
   });
 };
 
+/**
+ * @swagger
+ * /user/{id}:
+ *   put:
+ *     summary: Modifie un utilisateur
+ *     tags: [User]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de l'utilisateur
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/User'
+ *     responses:
+ *       200:
+ *         description: Utilisateur modifié
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       404:
+ *         description: Utilisateur non trouvé
+ *       405:
+ *         description: Erreur de validation ou duplication
+ */
 module.exports.updateOneUser = function (req, res) {
-  LoggerHttp(req, res);
   req.log.info("Modification d'un utilisateur");
 
   if (req.body.currency !== undefined) {
@@ -186,8 +464,51 @@ module.exports.updateOneUser = function (req, res) {
   });
 };
 
+/**
+ * @swagger
+ * /users:
+ *   put:
+ *     summary: Modifie plusieurs utilisateurs
+ *     tags: [User]
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: array
+ *           items:
+ *             type: string
+ *         description: Liste des IDs des utilisateurs
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               firstName:
+ *                 type: string
+ *               lastName:
+ *                 type: string
+ *               username:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               currency:
+ *                 type: number
+ *     responses:
+ *       200:
+ *         description: Utilisateurs modifiés
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ *       404:
+ *         description: Utilisateur(s) non trouvé(s)
+ */
 module.exports.updateManyUsers = function (req, res) {
-  LoggerHttp(req, res);
   req.log.info('Modification de plusieurs utilisateurs');
   var arg = req.query.id;
   if (arg && !Array.isArray(arg)) arg = [arg];
@@ -208,9 +529,26 @@ module.exports.updateManyUsers = function (req, res) {
   });
 };
 
-
+/**
+ * @swagger
+ * /user/{id}:
+ *   delete:
+ *     summary: Supprime un utilisateur
+ *     tags: [User]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de l'utilisateur
+ *     responses:
+ *       200:
+ *         description: Utilisateur supprimé
+ *       404:
+ *         description: Utilisateur non trouvé
+ */
 module.exports.deleteOneUser = function (req, res) {
-  LoggerHttp(req, res);
   req.log.info("Suppression d'un utilisateur");
   UserService.deleteOneUser(req.params.id, null, function (err, value) {
     if (err && err.type_error == 'no-found') {
@@ -229,9 +567,28 @@ module.exports.deleteOneUser = function (req, res) {
   });
 };
 
-
+/**
+ * @swagger
+ * /users:
+ *   delete:
+ *     summary: Supprime plusieurs utilisateurs
+ *     tags: [User]
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: array
+ *           items:
+ *             type: string
+ *         description: Liste des IDs des utilisateurs
+ *     responses:
+ *       200:
+ *         description: Utilisateurs supprimés
+ *       404:
+ *         description: Utilisateur(s) non trouvé(s)
+ */
 module.exports.deleteManyUsers = function (req, res) {
-  LoggerHttp(req, res);
   req.log.info('Suppression de plusieurs utilisateurs');
   var arg = req.query.id;
   if (arg && !Array.isArray(arg)) arg = [arg];

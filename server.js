@@ -4,29 +4,18 @@ const _ = require("lodash");
 const bodyParser = require('body-parser');
 const Config = require('./config');
 const Logger = require('./utils/logger').pino;
-const swaggerJsdoc = require('swagger-jsdoc'); // swagger
 const swaggerUi = require('swagger-ui-express'); // swagger
+
+// Import Swagger configuration
+const swaggerDocument = require('./swagger.json');
 
 // aller à http://localhost:3002/api-docs/
 
 // Création de notre application express.js
 const app = express();
 
-// Configuration des options de Swagger
-const swaggerOptions = {
-  swaggerDefinition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'AceScape API',
-      version: '1.0.0',
-      description: 'Documentation de l\'API pour AceScape',
-    },
-  },
-  apis: ['./controllers/*.js'], // fichiers contenant les annotations Swagger
-};
-
-const swaggerDocs = swaggerJsdoc(swaggerOptions);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+// Configuration de Swagger
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Démarrage de la database
 require('./utils/database');
